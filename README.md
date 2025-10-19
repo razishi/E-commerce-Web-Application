@@ -1,4 +1,4 @@
-E-commerce Web Application
+E-commerce Web Application /n
 General Functionality
 This is a full-stack Spring Boot eCommerce website that allows users to:
 
