@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Sales Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div style="margin-bottom: 30px; text-align: center;">
+    <a href="/admin" style="
+        background-color: #0d6efd;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: bold;
+        font-family: Arial, sans-serif;">
+        ← Back to Dashboard
+    </a>
+</div>
+
+<h1>📊 Sales Analytics</h1>
+<canvas id="revenueChart" width="600" height="300"></canvas>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const revenueData = [[${revenueData}]];
+
+    const labels = revenueData.map(item => item.date);
+    const values = revenueData.map(item => item.total);
+
+    new Chart(document.getElementById("revenueChart"), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Total Revenue Per Day',
+                data: values,
+                borderColor: 'green',
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: { title: { display: true, text: 'Date' } },
+                y: { title: { display: true, text: 'Revenue' } }
+            }
+        }
+    });
+    /*]]>*/
+</script>
+</body>
+</html>

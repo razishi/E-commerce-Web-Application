@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Product</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background-color: #f8f9fa;
+        }
+
+        form {
+            max-width: 500px;
+            margin: auto;
+            background: #f4f4f4;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .top-button {
+            display: block;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .alert-success, .alert-danger {
+            padding: 12px;
+            margin: 0 auto 20px auto;
+            max-width: 500px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+
+<!--  Back to Manage Products -->
+<a href="/admin/products/manage" class="top-button" style="text-decoration: none;">
+    <button style="background-color: #6c757d;">← Back to Manage Products</button>
+</a>
+
+<h2 style="text-align:center;">Add New Product</h2>
+
+<!--  Show success or error messages -->
+<div th:if="${successMessage}" class="alert-success" th:text="${successMessage}"></div>
+<div th:if="${errorMessage}" class="alert-danger" th:text="${errorMessage}"></div>
+
+<form th:action="@{/admin/products/add}" th:object="${product}" method="post" enctype="multipart/form-data">
+    <input type="text" th:field="*{name}" placeholder="Product Name" required />
+    <textarea th:field="*{description}" placeholder="Product Description" required></textarea>
+    <input type="text" th:field="*{price}" placeholder="Price" required />
+    <input type="number" th:field="*{stock}" placeholder="Stock Quantity" required />
+
+    <label for="imageFile">Product Image</label>
+    <input type="file" id="imageFile" name="imageFile" accept="image/*" />
+
+    <label for="categorySelect">Category</label>
+    <select th:field="*{category.id}" id="categorySelect" required>
+        <option value="">Select Category</option>
+        <option th:each="cat : ${categories}"
+                th:value="${cat.id}"
+                th:text="${cat.name}">
+        </option>
+    </select>
+
+    <button type="submit">Save Product</button>
+</form>
+
+</body>
+</html>

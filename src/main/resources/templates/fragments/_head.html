@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" th:fragment="head">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title th:text="${pageTitle} ?: 'Demo Shop'">Demo Shop</title>
+
+<link th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}" rel="stylesheet">
+<link th:href="@{/css/app.css}" rel="stylesheet"> <!-- optional custom CSS -->
+</html>

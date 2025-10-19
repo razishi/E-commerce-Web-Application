@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en" th:fragment="navbar">
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" th:href="@{/products}">Not Factory54</a>
+
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#mainNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div id="mainNav" class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+
+                <!-- 🛒 Cart (User Only) -->
+                <li class="nav-item" sec:authorize="hasRole('USER')">
+                    <a class="nav-link" th:href="@{/cart}">🛒 Cart</a>
+                </li>
+
+                <!-- 💬 Conversations (User Only) -->
+                <li class="nav-item" sec:authorize="hasRole('USER')">
+                    <a class="nav-link" th:href="@{/my-conversations}">💬 My Conversations</a>
+                </li>
+
+                <!-- ❤️ Favorites (User Only) -->
+                <li class="nav-item" sec:authorize="hasRole('USER')">
+                    <a class="nav-link" th:href="@{/favorites}">❤️ Favorites</a>
+                </li>
+
+                <!-- 🧾 My Orders (User Only – FIXED) -->
+                <li class="nav-item" sec:authorize="hasRole('USER')">
+                    <a class="nav-link" th:href="@{/orders}">🧾 My Orders</a>
+                </li>
+
+                <!-- 🛠 Dashboard (Admin Only) -->
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link" th:href="@{/admin}">🛠 Dashboard</a>
+                </li>
+
+                <!-- 📂 All Conversations (Admin Only) -->
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link" th:href="@{/admin/conversations}">📂 Conversations</a>
+                </li>
+
+                <!-- 🔐 Login (Guests Only) -->
+                <li class="nav-item" sec:authorize="isAnonymous()">
+                    <a class="nav-link" th:href="@{/login}">🔐 Login</a>
+                </li>
+
+                <!-- 🚪 Logout (All Authenticated Users) -->
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <form th:action="@{/logout}" method="post">
+                        <button class="btn nav-link border-0 bg-transparent" style="cursor:pointer">🚪 Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!--  Chat Button (User Only) -->
+<style>
+    .chat-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #6c757d;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      cursor: pointer;
+      z-index: 1060;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .3);
+    }
+
+    .chat-btn.has-unread {
+      background: #0d6efd;
+    }
+
+    .offcanvas-chat {
+      width: 360px;
+    }
+
+    @media (max-width: 576px) {
+      .offcanvas-chat {
+        width: 100%;
+      }
+    }
+</style>
+
+<!-- Chat Button & Panel for Users -->
+<div sec:authorize="hasRole('USER')" id="chatBtn" class="chat-btn">💬</div>
+
+<div sec:authorize="hasRole('USER')" class="offcanvas offcanvas-end offcanvas-chat" tabindex="-1" id="chatPanel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Chat with Support</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <iframe id="chatIframe" style="border:0;width:100%;height:calc(100vh - 60px);"></iframe>
+    </div>
+</div>
+
+<!-- Chat Widget Script -->
+<script sec:authorize="hasRole('USER')">
+    document.addEventListener('DOMContentLoaded', () => {
+      const chatBtn = document.getElementById('chatBtn');
+      const chatPnlEl = document.getElementById('chatPanel');
+      const chatPnl = new bootstrap.Offcanvas(chatPnlEl);
+      const iframe = document.getElementById('chatIframe');
+      let currentEs = null;
+
+      const openConversation = id => {
+        iframe.src = id ? `/conversation/${id}` : '/conversation';
+        if (currentEs) { currentEs.close(); }
+        if (id) {
+          currentEs = new EventSource(`/conversation/${id}/stream`);
+          currentEs.onmessage = ev => {
+            const m = JSON.parse(ev.data);
+            if (m.admin && !chatPnlEl.classList.contains('show')) {
+              chatBtn.classList.add('has-unread');
+            }
+          };
+        }
+      };
+
+      chatBtn.addEventListener('click', () => chatPnl.toggle());
+
+      chatPnlEl.addEventListener('shown.bs.offcanvas', () => {
+        chatBtn.classList.remove('has-unread');
+        fetch('/api/my-conversation-id')
+          .then(r => r.ok ? r.json() : null)
+          .then(id => openConversation(id))
+          .catch(() => openConversation(null));
+      });
+    });
+</script>
+
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Manage Products</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+        }
+        table {
+            width: 90%;
+            margin: auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .action-btn {
+            padding: 6px 12px;
+            margin: 2px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+        }
+        .edit-btn { background-color: #007bff; }
+        .delete-btn { background-color: #dc3545; }
+
+        .nav-buttons {
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .nav-buttons a {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border-radius: 6px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .dashboard-btn {
+            background-color: #28a745;
+        }
+
+        .home-btn {
+            background-color: #6c757d;
+        }
+
+        .add-btn {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 20px auto;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<!--  Top Navigation Buttons -->
+<div class="nav-buttons">
+    <a href="/admin" class="dashboard-btn">← Go to Dashboard</a>
+</div>
+
+<h2>Manage Products</h2>
+
+<a th:href="@{/admin/products/add}" class="add-btn">+ Add Product</a>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="product : ${products}">
+        <td th:text="${product.id}">1</td>
+        <td th:text="${product.name}">Name</td>
+        <td th:text="${product.price}">0.00</td>
+        <td th:text="${product.stock}">0</td>
+        <td>
+            <a th:href="@{'/admin/products/edit/' + ${product.id}}" class="action-btn edit-btn">Edit</a>
+            <a th:href="@{'/admin/products/delete/' + ${product.id}}" class="action-btn delete-btn"
+               onclick="return true;">Delete</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

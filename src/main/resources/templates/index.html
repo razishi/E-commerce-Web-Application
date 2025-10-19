@@ -1,0 +1,10 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout :: content">
+
+<div th:with="pageTitle='Home'"> <!-- overrides title -->
+    <h1 class="mb-4">Welcome!</h1>
+    <p>This is the landing page.</p>
+</div>
+</html>

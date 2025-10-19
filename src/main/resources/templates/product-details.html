@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .product-container {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 40px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+        .product-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .product-description {
+            font-size: 16px;
+            color: #666;
+        }
+        .product-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #198754;
+            margin-top: 15px;
+        }
+        .review-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .review-rating {
+            color: gold;
+        }
+        .similar-title {
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container product-container">
+        <!-- Cart alert messages -->
+        <div th:if="${cartMessage}" class="alert alert-danger text-center mt-3" role="alert" th:text="${cartMessage}"></div>
+        <div th:if="${success}" class="alert alert-success text-center mt-3" role="alert" th:text="${success}"></div>
+
+    <!--  Back to Products -->
+    <div class="mb-4">
+        <a href="/products" class="btn btn-outline-secondary">⬅ Back to Products</a>
+    </div>
+
+    <!--  Success message if added to cart -->
+    <div th:if="${param.added}" class="alert alert-success text-center">
+        ✅ Product added to cart successfully!
+    </div>
+
+    <div class="row">
+        <div class="col-md-5">
+            <img class="img-fluid rounded"
+                 th:src="${product.imageUrl == null ? '/images/placeholder.png' : (product.imageUrl.startsWith('http') ? product.imageUrl : '/' + product.imageUrl)}"
+                 th:alt="${product.name}">
+        </div>
+        <div class="col-md-7">
+            <div class="product-title" th:text="${product.name}">Product Name</div>
+            <div class="product-description mt-2">
+                <h6>Description:</h6>
+                <p th:text="${product.description}">Product description goes here...</p>
+            </div>
+            <div class="product-price" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 2, 'POINT')} + ' ₪'">0.00 ₪</div>
+
+            <!-- ❤️ Favorite Button -->
+            <form th:action="@{/favorites/toggle}" method="post" class="mb-3 mt-3">
+                <input type="hidden" name="productId" th:value="${product.id}">
+                <button type="submit"
+                        class="btn"
+                        th:classappend="${isFavorite} ? 'btn-danger' : 'btn-outline-danger'">
+                    <span th:text="${isFavorite} ? '❤️ Remove from Favorites' : '🤍 Add to Favorites'"></span>
+                </button>
+            </form>
+
+            <!-- 🛒 Add to Cart -->
+            <div th:if="${product.stock > 0}">
+                <form th:action="@{/cart/add}" method="post">
+                    <input type="hidden" name="productId" th:value="${product.id}">
+                    <input type="hidden" name="redirectTo" th:value="@{'/products/' + ${product.id}}"/>
+                    <div class="input-group">
+                        <input type="number" name="quantity" class="form-control" min="1" th:attr="max=${product.stock}" value="1" required>
+                        <input type="text" name="comment" class="form-control" placeholder="Optional comment">
+                        <button class="btn btn-success" type="submit">🛒 Add to Cart</button>
+                    </div>
+                </form>
+            </div>
+            <div th:if="${product.stock == 0}" class="alert alert-danger mt-2 text-center">
+                ❌ This product is currently sold out.
+            </div>
+        </div>
+    </div>
+
+    <!--  Customer Reviews -->
+    <div class="review-section">
+        <h4 class="mt-5 mb-3"><span class="text-warning">⭐</span> Customer Reviews</h4>
+
+        <div th:if="${#lists.isEmpty(reviews)}">
+            <p class="text-muted">No reviews yet. Be the first to leave one from your orders page!</p>
+        </div>
+
+        <div th:each="review : ${reviews}" class="review-card">
+            <div class="fw-bold">
+                <span th:text="${review.account.username}">User</span> •
+                <span th:text="${#temporals.format(review.createdAt, 'dd MMM yyyy')}">Date</span>
+            </div>
+            <div class="review-rating">
+                <span th:utext="${'★'.repeat(review.rating)}"></span>
+                <span th:utext="${'☆'.repeat(5 - review.rating)}" style="color:lightgray;"></span>
+            </div>
+            <div class="mt-2" th:text="${review.comment}">Review comment goes here...</div>
+        </div>
+    </div>
+
+    <!--  Similar Products -->
+    <div class="similar-title">
+        <h4 class="mt-5 mb-3">🛍️ Similar Products</h4>
+        <div th:if="${#lists.isEmpty(similarProducts)}">
+            <p class="text-muted">No similar products found.</p>
+        </div>
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+            <div class="col" th:each="sp : ${similarProducts}">
+                <div class="card h-100 shadow-sm">
+                    <a th:href="@{/products/{id}(id=${sp.id})}" style="text-decoration: none; color: inherit;">
+                        <img class="card-img-top"
+                             th:src="${sp.imageUrl == null ? '/images/placeholder.png' : (sp.imageUrl.startsWith('http') ? sp.imageUrl : '/' + sp.imageUrl)}"
+                             th:alt="${sp.name}">
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${sp.name}">Product Name</h5>
+                            <p class="text-muted small" th:text="${sp.description}">Description</p>
+                            <div class="text-primary fw-bold"
+                                 th:text="${#numbers.formatDecimal(sp.price, 0, 'COMMA', 2, 'POINT')} + ' ₪'">0.00 ₪</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

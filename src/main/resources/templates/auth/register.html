@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Account</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" th:href="@{/css/bootstrap-icons.css}" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #e0f2fe, #f9fbfc);
+            font-family: 'Segoe UI', sans-serif;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #0d6efd;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            font-size: 15px;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #198754;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #146c43;
+        }
+
+        .text-center {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .text-center a {
+            color: #0d6efd;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .text-center a:hover {
+            text-decoration: underline;
+        }
+    </style>
+
+    <script>
+        function validateForm() {
+            const firstName = document.forms["registerForm"]["firstName"].value;
+            const lastName = document.forms["registerForm"]["lastName"].value;
+            const email = document.forms["registerForm"]["email"].value;
+            const password = document.forms["registerForm"]["password"].value;
+
+            const nameRegex = /^[A-Za-z]+$/;
+            let valid = true;
+
+            document.getElementById("firstNameError").innerText = "";
+            document.getElementById("lastNameError").innerText = "";
+            document.getElementById("emailError").innerText = "";
+            document.getElementById("passwordError").innerText = "";
+
+            if (!nameRegex.test(firstName)) {
+                document.getElementById("firstNameError").innerText = "First name must contain only letters.";
+                valid = false;
+            }
+
+            if (!nameRegex.test(lastName)) {
+                document.getElementById("lastNameError").innerText = "Last name must contain only letters.";
+                valid = false;
+            }
+
+            if (email === "" || !email.includes("@")) {
+                document.getElementById("emailError").innerText = "Enter a valid email address.";
+                valid = false;
+            }
+
+            if (password.length < 6) {
+                document.getElementById("passwordError").innerText = "Password must be at least 6 characters.";
+                valid = false;
+            }
+
+            return valid;
+        }
+    </script>
+</head>
+<body>
+
+<div class="container">
+    <h2><i class="bi bi-person-plus-fill"></i> Create Account</h2>
+
+    <form name="registerForm" th:action="@{/register}" th:object="${account}" method="post" onsubmit="return validateForm()">
+        <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" th:field="*{firstName}" placeholder="First name" required>
+            <div class="error" id="firstNameError"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" th:field="*{lastName}" placeholder="Last name" required>
+            <div class="error" id="lastNameError"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="username">Username</label>
+            <div th:if="${registrationAttempted} and ${usernameError != null}" class="error" th:text="${usernameError}"></div>
+            <input type="text" id="username" th:field="*{username}" placeholder="Username" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <div th:if="${registrationAttempted} and ${emailError != null}" class="error" th:text="${emailError}"></div>
+            <input type="email" id="email" th:field="*{email}" placeholder="you@example.com" required>
+            <div class="error" id="emailError"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" th:field="*{password}" placeholder="Password" required>
+            <div class="error" id="passwordError"></div>
+        </div>
+
+        <button class="btn" type="submit"><i class="bi bi-check-circle me-1"></i> Register</button>
+    </form>
+
+    <div class="text-center">
+        Already have an account? <a th:href="@{/login}">Sign in</a>
+    </div>
+</div>
+
+</body>
+</html>

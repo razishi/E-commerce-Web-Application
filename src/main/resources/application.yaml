@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/ex4
+    username: spring
+    password: springpass
+  jpa:
+    hibernate:
+      ddl-auto: update
+    defer-datasource-initialization: true

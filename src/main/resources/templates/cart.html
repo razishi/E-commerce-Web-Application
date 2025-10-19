@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <title>🛒 Your Cart</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #e0f7fa, #ffffff);
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .cart-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 50px 40px;
+            margin: 60px auto;
+            border-radius: 20px;
+            max-width: 1100px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            font-weight: bold;
+            color: #0d6efd;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .table thead {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .table td, .table th {
+            vertical-align: middle;
+        }
+
+        input[type="number"],
+        input[type="text"] {
+            border-radius: 8px;
+        }
+
+        .btn-update, .btn-remove, .btn-checkout, .btn-continue {
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 18px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-update {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .btn-remove {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-checkout {
+            background-color: #198754;
+            color: white;
+            font-size: 18px;
+            padding: 12px 28px;
+        }
+
+        .btn-continue {
+            background-color: #6c757d;
+            color: white;
+            font-size: 18px;
+            padding: 12px 28px;
+        }
+
+        .btn-update:hover,
+        .btn-remove:hover,
+        .btn-checkout:hover,
+        .btn-continue:hover {
+            transform: scale(1.03);
+            opacity: 0.95;
+        }
+
+        .total-section {
+            font-size: 1.6rem;
+            font-weight: bold;
+            text-align: right;
+            color: #198754;
+            margin-top: 25px;
+        }
+
+        .empty-cart-icon {
+            font-size: 60px;
+            color: #ffc107;
+            margin-bottom: 15px;
+        }
+
+        .d-flex.flex-column.gap-2 {
+            gap: 10px !important;
+        }
+
+        @media (max-width: 768px) {
+            .table thead {
+                font-size: 13px;
+            }
+            .btn-checkout, .btn-continue {
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" th:href="@{/css/alert-fix.css}"/>
+</head>
+<body>
+
+
+
+<div class="container cart-container">
+
+<!-- Flash messages -->
+<div th:if="${!#strings.isEmpty(cartMessage)}" 
+     class="alert alert-danger text-center mb-3" role="alert"
+     th:text="${cartMessage}"></div>
+<div th:if="${!#strings.isEmpty(success)}" 
+     class="alert alert-success text-center mb-3" role="alert"
+     th:text="${success}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0"><i class="fas fa-shopping-cart me-2"></i> Your Shopping Cart</h2>
+    <a th:href="@{/products}" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
+        ← <span>Back&nbsp;to&nbsp;Products</span>
+    </a>
+</div>
+<!--  Empty Cart -->
+    <div th:if="${cartItems.isEmpty()}" class="text-center">
+        <div class="empty-cart-icon">🛒</div>
+        <div class="alert alert-warning fw-bold">Your cart is currently empty.</div>
+    </div>
+
+    <!--  Filled Cart -->
+    <div th:if="${not cartItems.isEmpty()}">
+        <div class="table-responsive">
+            <table class="table table-bordered text-center align-middle">
+                <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price (₪)</th>
+                    <th>Quantity</th>
+                    <th>Comment</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${cartItems}">
+                    <td th:text="${item.value.product.name}">Product</td>
+                    <td th:text="${item.value.product.price}">0</td>
+
+                    <!--  Update Form -->
+                    <form th:action="@{/cart/update}" method="post">
+                        <td>
+                            <input type="hidden" name="productId" th:value="${item.value.product.id}" />
+                            <input type="number" name="quantity" min="1" class="form-control"
+                                   th:value="${item.value.quantity}" style="width: 90px;" required />
+                        </td>
+                        <td>
+                            <input type="text" name="comment" th:value="${item.value.comment}" class="form-control" />
+                        </td>
+                        <td th:text="${#numbers.formatDecimal(item.value.product.price * item.value.quantity, 0, 'COMMA', 2, 'POINT')} + ' ₪'">0.00 ₪</td>
+                        <td class="d-flex flex-column gap-2 align-items-center">
+                            <button type="submit" class="btn btn-sm btn-update w-100">
+                                🔄 Update
+                            </button>
+                    </form>
+
+                    <!--  Remove Form -->
+                    <form th:action="@{/cart/remove}" method="post"
+>
+                        <input type="hidden" name="productId" th:value="${item.value.product.id}" />
+                        <button type="submit" class="btn btn-sm btn-remove w-100">
+                            🗑 Remove
+                        </button>
+                    </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!--  Total -->
+        <div class="total-section">
+            Total to Pay: <span th:text="${#numbers.formatDecimal(cartTotal, 0, 'COMMA', 2, 'POINT')} + ' ₪'">0.00 ₪</span>
+        </div>
+
+        <!--  Bottom Buttons -->
+        <div class="mt-4 d-flex justify-content-between flex-wrap">
+            <form method="get" th:action="@{/checkout}">
+                <button type="submit" class="btn btn-checkout">
+                    ✅ Proceed to Checkout
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
